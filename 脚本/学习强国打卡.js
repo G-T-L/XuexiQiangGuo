@@ -102,7 +102,7 @@ function initialize() {
 
 function main() {
     var initialMediaVolume = device.getMusicVolume();
-    device.setMusicVolume(0);
+    device.setMusicVolume(0); //TODO 有概率失效
     var initialBrightness = device.getBrightness();
     var initialBrightnessMode = device.getBrightnessMode();
     //device.keepScreenDim(3600 * 1000);
@@ -118,7 +118,7 @@ function main() {
         readArticles(6);
         watchVideos(6);
     } else {
-        readArticles(10); //有概率点到视频啥的就不作数了
+        //readArticles(10); //有概率点到视频啥的就不作数了
         watchVideos(8);
     }
     if (storage_xxqg.get("isDailyQuizEnabled") || false) {
@@ -343,7 +343,7 @@ function readArticles(numOfArticlesToRead) {
             failedCounts++;
             swipe(device.width / 2, device.height * 0.7, device.width / 2, device.height * 0.2, 500);
             sleep(200);
-            toastLog("failed to locate number" + readCounts + 1 + " passage after " + failedCounts + " times");
+            toastLog("failed to locate number" + (readCounts + 1) + " passage after " + failedCounts + " times");
         }
     }
 }
@@ -377,7 +377,7 @@ function watchVideos(numOfVediosToWatch) {
             watchCounts++;
             sleep(3000);
             if (textContains("新闻联播").exists() && !debugMode) {
-                delay(6 * 60 * 1000); //多刷点时长防止其他短视频凑不够总时长
+                sleep(3 * 60 * 1000); //多刷点时长防止其他短视频凑不够总时长
             }
             smartClick(text("继续播放").findOne(1000));
             sleep(1000);
@@ -386,7 +386,7 @@ function watchVideos(numOfVediosToWatch) {
             toastLog("开始看第" + watchCounts + "个视频/共" + numOfVediosToWatch + "个");
             //非测试模式则获取浏览时长分
             if (!debugMode) {
-                for (var i = 0; i < 7; i++) {
+                for (var i = 0; i < 4; i++) {
                     sleep(8000 + Math.random() * 4000);
                     swipe(device.width / 2, device.height * (0.7 + Math.random() * 0.2), device.width / 2, device.height * (0.2 + Math.random() * 0.2), 1000);
                     toast("当前为第" + watchCounts + "个视频,约已观看" + (i + 1) * 10 + "秒");
