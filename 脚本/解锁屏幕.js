@@ -28,11 +28,12 @@ deviceUnlocker.unlockDevice = function () {
             sleep(500);
         }
 
-        swipe(device.width / 2, device.height * 0.9, device.width / 2, device.height * 0.1, 350);
+        //不同手机，指纹位置不一样，敏感程度不一样，多试几次
+        swipe(device.width / 2, device.height * 0.9, device.width / 2, device.height * 0.1, 300);
         sleep(1000);
 
         if (!desc(0).exists()) {
-            swipe(device.width / 2, device.height * 0.9, device.width / 2, device.height * 0.1, 200);
+            swipe(device.width / 2, device.height * 0.6, device.width / 2, device.height * 0.1, 400);
             sleep(1000);
         }
 
@@ -42,7 +43,7 @@ deviceUnlocker.unlockDevice = function () {
         }
 
         if (!desc(0).exists()) {
-            swipe(device.width / 2, device.height * 0.9, device.width / 2, device.height * 0.1, 1000);
+            swipe(device.width / 2, device.height * 0.6, device.width / 2, device.height * 0.1, 1000);
             sleep(1000);
         }
 
@@ -52,7 +53,9 @@ deviceUnlocker.unlockDevice = function () {
         }
 
         for (let i = 0; i < password.length; i++) {
-            desc(password[i]).findOne(5000).click();
+            if (desc(password[i]).findOne(5000)) {
+                desc(password[i]).findOne(5000).click();
+            }
         }
         sleep(1000);
 

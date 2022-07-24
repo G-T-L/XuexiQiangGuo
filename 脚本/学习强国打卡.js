@@ -118,7 +118,7 @@ function main() {
         readArticles(6);
         watchVideos(6);
     } else {
-        //readArticles(10); //有概率点到视频啥的就不作数了
+        readArticles(10); //有概率点到视频啥的就不作数了
         watchVideos(8);
     }
     if (storage_xxqg.get("isDailyQuizEnabled") || false) {
