@@ -31,10 +31,10 @@ function initialize() {
         let dialog_start = dialogs
             .build({
                 title: "是否开始学习强国打卡?",
-                content: "按音量上键取消执行",
+                content: "按音量上键取消执行、按空白处延时执行",
                 positive: "确认",
                 negative: "说明",
-                neutral: "稍后提醒",
+                neutral: "取消",
                 checkBoxPrompt: "测试模式",
                 checkBoxChecked: false,
             })
@@ -67,9 +67,11 @@ function initialize() {
                     sleep(1000);
                     initialize();
                 } else if (choiceMade == "neutral") {
-                    let delayTime = dialogs.input("延时时间(min):", "10");
-                    sleep(delayTime * 60 * 1000);
-                    initialize();
+                    toastLog("脚本已终止");
+                    exit();
+                    //let delayTime = dialogs.input("延时时间(min):", "10");
+                    //sleep(delayTime * 60 * 1000);
+                    //initialize();
                 } else {
                     toastLog("脚本将在半小时后运行");
                     sleep(30 * 60 * 1000);
