@@ -4,31 +4,31 @@
 //测试模式：不包含浏览时长，验证流程用
 //熄屏调用默认完全模式
 //需要权限：无障碍权限（分析布局并模拟点击）、存储权限（本地数据库）、悬浮窗权限（弹出式通知）、修改系统设置权限（刷视频时自动静音）、通知权限（提示脚本运行状态）、读取应用列表、关联启动（启动学习强国）
-//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 auto(); //检查无障碍权限
 requiresApi(24); //安卓7以上版本
 
-var debugMode = false;
-var deviceUnlocker = require("解锁屏幕.js"); //需要另一个解锁屏幕的脚本
-var isScreenNeedToBeLocked; //有root权限时会根据情况自动锁屏
-var isScreenNeedToBeDimed; //是否需要调整亮度
-var thread_main;
-var thread_main_monitor;
-var targetAverageScore = 35;
-var storage_xxqg = storages.create("XXQG"); // 本地存储数据库 存储本周初始积分
-const IsRooted = files.exists("/sbin/su") || files.exists("/system/xbin/su") || files.exists("/system/bin/su");
+let debugMode = false;
+let targetAverageScore = 35; //目标周平均分，未达标则触发提醒
+let deviceUnlocker = require("解锁屏幕.js"); //需要另一个解锁屏幕的脚本
+let isScreenNeedToBeLocked; //有root权限时会根据情况自动锁屏
+let isScreenNeedToBeDimed; //是否需要调整亮度
+let thread_main; //主线程
+let thread_main_monitor; //防主线程卡死超时
+let storage_xxqg = storages.create("XXQG"); // 本地存储数据库 存储本周初始积分
+const IsRooted = files.exists("/sbin/su") || files.exists("/system/xbin/su") || files.exists("/system/bin/su"); //检测Root权限
 
-// ////////////////////////////////////begin/////////////////////////////////////////
+//////////////////////////////////////begin/////////////////////////////////////////
 initialize();
 
 function initialize() {
-    var checkBoxCounts = 0;
+    let checkBoxCounts = 0;
 
     if (device.isScreenOn()) {
         isScreenNeedToBeLocked = true;
         isScreenNeedToBeDimed = false;
-        var choiceMade;
-        var dialog_start = dialogs
+        let choiceMade;
+        let dialog_start = dialogs
             .build({
                 title: "是否开始学习强国打卡?",
                 content: "按音量上键取消执行",
@@ -44,7 +44,7 @@ function initialize() {
             .on("check", (checked) => {
                 checkBoxCounts++;
                 if (checkBoxCounts % 5 == 0) {
-                    var isDailyQuizEnabled = storage_xxqg.get("isDailyQuizEnabled") || false;
+                    let isDailyQuizEnabled = storage_xxqg.get("isDailyQuizEnabled") || false;
                     storage_xxqg.put("isDailyQuizEnabled", !isDailyQuizEnabled);
                     if (isDailyQuizEnabled) {
                         toastLog("每日答题功能已关闭");
@@ -67,7 +67,7 @@ function initialize() {
                     sleep(1000);
                     initialize();
                 } else if (choiceMade == "neutral") {
-                    var delayTime = dialogs.input("延时时间(min):", "10");
+                    let delayTime = dialogs.input("延时时间(min):", "10");
                     sleep(delayTime * 60 * 1000);
                     initialize();
                 } else {
@@ -101,10 +101,10 @@ function initialize() {
 }
 
 function main() {
-    var initialMediaVolume = device.getMusicVolume();
+    let initialMediaVolume = device.getMusicVolume();
     device.setMusicVolume(0); //TODO 有概率失效
-    var initialBrightness = device.getBrightness();
-    var initialBrightnessMode = device.getBrightnessMode();
+    let initialBrightness = device.getBrightness();
+    let initialBrightnessMode = device.getBrightnessMode();
     //device.keepScreenDim(3600 * 1000);
     if (isScreenNeedToBeDimed) {
         device.setBrightnessMode(0);
@@ -146,7 +146,7 @@ function main() {
 }
 
 function main_monitor() {
-    for (var i = 0; i < 60 * 60; i++) {
+    for (let i = 0; i < 60 * 60; i++) {
         sleep(1000);
     }
     if (thread_main) {
@@ -166,7 +166,7 @@ function isMainPage() {
 }
 
 function backToHomePage() {
-    for (var i = 0; i < 6; i++) {
+    for (let i = 0; i < 6; i++) {
         if (!isMainPage()) {
             back();
             sleep(2000);
@@ -208,7 +208,7 @@ function logScore() {
     if (new Date().getDay() == 1) {
         if (storage_xxqg.get("lastRecordDate") != new Date().getDate()) {
             storage_xxqg.put("lastRecordDate", new Date().getDate());
-            var currentScore = text("积分").findOne(3000).parent().child(1).text();
+            let currentScore = text("积分").findOne(3000).parent().child(1).text();
             storage_xxqg.put("initialScore", currentScore);
         }
     }
@@ -219,8 +219,8 @@ function checkScore() {
     backToHomePage();
     if (new Date().getDay() == 0) {
         initialScore = storage_xxqg.get("initialScore") || 0;
-        var currentScore = text("积分").findOne(3000).parent().child(1).text();
-        var averageScore = (currentScore - initialScore) / 7;
+        let currentScore = text("积分").findOne(3000).parent().child(1).text();
+        let averageScore = (currentScore - initialScore) / 7;
         if (averageScore < targetAverageScore) {
             weChatPush("title", "学习强国积分未达标", "content", "本周平均每日积分为：" + averageScore + "\n今日需获得" + targetAverageScore * 7 - initialScore + "积分方可达标");
         } else {
@@ -229,29 +229,27 @@ function checkScore() {
     }
 }
 
-// 得到当日日期字符串用于定位文章，格式YYYY-MM-DD
-// 默认为今天，昨天加参数"Yesterday"
-// getDay("Yesterday")
+// 得到当日日期字符串用于定位文章，格式YYYY-MM-DD，默认当天，可加“Yesterday”指定昨天
 function getDay(strDay) {
-    var t = 0;
+    let t = 0;
     if (strDay == "Yesterday") {
         t = 24 * 60 * 60 * 1000;
     }
-    var myDate = new Date();
+    let myDate = new Date();
     myDate.setTime(myDate.getTime() - t);
-    var Y = myDate.getFullYear().toString();
-    var M = (myDate.getMonth() + 1).toString();
+    let Y = myDate.getFullYear().toString();
+    let M = (myDate.getMonth() + 1).toString();
     if (M < 10) M = "0" + M;
-    var D = myDate.getDate().toString();
+    let D = myDate.getDate().toString();
     if (D < 10) D = "0" + D;
     return Y + "-" + M + "-" + D;
 }
 
 // 学习文章
 function readArticles(numOfArticlesToRead) {
-    var isShared = true; //好像现在不需要分享了
-    var isStarred = true; //好像现在不需要收藏了
-    var isCommented = false; //需要评论一次
+    let isShared = true; //好像现在不需要分享了
+    let isStarred = true; //好像现在不需要收藏了
+    let isCommented = false; //需要评论一次
     toastLog("article read begin");
     if (!isMainPage()) {
         enterMainPage();
@@ -261,25 +259,24 @@ function readArticles(numOfArticlesToRead) {
     smartClick(desc("工作").findOne(3000));
     sleep(1000);
 
-    var p = boundsInside(1, device.height * 0.1, device.width * 0.9, device.height * 0.9)
+    let p = boundsInside(1, device.height * 0.1, device.width * 0.9, device.height * 0.9)
         .text("推荐")
         .findOne(1000);
     smartClick(p);
     sleep(1000);
 
-    var j = 0;
-    var dateStr;
+    let dateStr;
     if (new Date().getHours() > 8) {
         dateStr = getDay("Today");
     } else {
         dateStr = getDay("Yesterday");
     }
 
-    var readCounts = 0;
-    var failedCounts = 0;
+    let readCounts = 0;
+    let failedCounts = 0;
     for (; readCounts < numOfArticlesToRead && failedCounts < 5; ) {
         sleep(1000);
-        var p = boundsInside(device.width * 0.1, device.height * 0.1, device.width * 0.9, device.height * 0.9)
+        let p = boundsInside(device.width * 0.1, device.height * 0.1, device.width * 0.9, device.height * 0.9)
             .text(dateStr)
             .findOne(1000);
         if (p) {
@@ -330,7 +327,7 @@ function readArticles(numOfArticlesToRead) {
             }
             //非测试模式则获取浏览时长分
             if (!debugMode) {
-                for (var i = 0; i < 7; i++) {
+                for (let i = 0; i < 7; i++) {
                     sleep(8000 + Math.random() * 4000);
                     swipe(device.width / 2, device.height * (0.7 + Math.random() * 0.2), device.width / 2, device.height * (0.2 + Math.random() * 0.2), 1000);
                     toast("当前为第" + readCounts + "篇文章,约已阅读" + (i + 1) * 10 + "秒");
@@ -348,28 +345,30 @@ function readArticles(numOfArticlesToRead) {
     }
 }
 
-// 学习视频
+// 观看视频
 function watchVideos(numOfVediosToWatch) {
     if (!isMainPage()) {
         enterMainPage();
     }
+
     toastLog("video watch begin");
     smartClick(text("电视台").findOne(1000));
     sleep(3000);
     smartClick(text("联播频道").findOne(1000));
     sleep(3000);
-    var dateStr;
+
+    let dateStr;
     if (new Date().getHours() > 16) {
         dateStr = getDay("Today");
     } else {
         dateStr = getDay("Yesterday");
     }
-    var watchCounts = 0;
-    var failedCounts = 0;
 
+    let watchCounts = 0;
+    let failedCounts = 0;
     for (; watchCounts < numOfVediosToWatch && failedCounts < 5; ) {
         sleep(1000);
-        var p = boundsInside(device.width * 0.1, device.height * 0.1, device.width * 0.9, device.height * 0.9)
+        let p = boundsInside(device.width * 0.1, device.height * 0.1, device.width * 0.9, device.height * 0.9)
             .text(dateStr)
             .findOne(1000);
         if (p) {
@@ -386,7 +385,7 @@ function watchVideos(numOfVediosToWatch) {
             toastLog("开始看第" + watchCounts + "个视频/共" + numOfVediosToWatch + "个");
             //非测试模式则获取浏览时长分
             if (!debugMode) {
-                for (var i = 0; i < 4; i++) {
+                for (let i = 0; i < 4; i++) {
                     sleep(8000 + Math.random() * 4000);
                     swipe(device.width / 2, device.height * (0.7 + Math.random() * 0.2), device.width / 2, device.height * (0.2 + Math.random() * 0.2), 1000);
                     toast("当前为第" + watchCounts + "个视频,约已观看" + (i + 1) * 10 + "秒");
@@ -415,8 +414,8 @@ function dailyQuiz() {
     }
     toastLog("daily quiz begin");
 
-    var correctCounts = 0;
-    var loopCounts = 0;
+    let correctCounts = 0;
+    let loopCounts = 0;
 
     for (; loopCounts < 100; loopCounts++) {
         sleep(1000);
@@ -475,7 +474,7 @@ function watchLocalChannel() {
     }
     toastLog("local channel entered");
     sleep(3000);
-    var p = textContains("切换地区").findOne(3000);
+    let p = textContains("切换地区").findOne(3000);
     if (p) {
         click(p.bounds().centerX() - device.width * 0.14, p.bounds().centerY() + (device.width / 1080) * 150);
         sleep(3000);
@@ -489,8 +488,8 @@ function smartClick(widget) {
             widget.click();
             return true;
         } else {
-            var widget_temp = widget.parent();
-            for (var triedTimes = 0; triedTimes < 5; triedTimes++) {
+            let widget_temp = widget.parent();
+            for (let triedTimes = 0; triedTimes < 5; triedTimes++) {
                 if (widget_temp.clickable()) {
                     widget_temp.click();
                     return true;
