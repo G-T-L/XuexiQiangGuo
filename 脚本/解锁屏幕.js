@@ -28,22 +28,31 @@ deviceUnlocker.unlockDevice = function () {
             sleep(500);
         }
 
-        swipe(device.width / 2, device.height * 0.9, device.width / 2, device.height * 0.1, 500);
+        swipe(device.width / 2, device.height * 0.9, device.width / 2, device.height * 0.1, 350);
         sleep(1000);
 
         if (!desc(0).exists()) {
-            swipe(device.width / 2, device.height * 0.9, device.width / 2, device.height * 0.1, 2000);
+            swipe(device.width / 2, device.height * 0.9, device.width / 2, device.height * 0.1, 200);
             sleep(1000);
         }
 
         if (!desc(0).exists()) {
-            sleep(3 * 60 * 1000);
+            swipe(device.width / 2, device.height * 0.9, device.width / 2, device.height * 0.1, 500);
+            sleep(1000);
+        }
+
+        if (!desc(0).exists()) {
+            swipe(device.width / 2, device.height * 0.9, device.width / 2, device.height * 0.1, 1000);
+            sleep(1000);
+        }
+
+        if (!desc(0).exists()) {
             swipe(device.width / 2, device.height * 0.9, device.width / 2, device.height * 0.1, 2000);
             sleep(1000);
         }
 
         for (let i = 0; i < password.length; i++) {
-            desc(password[i]).findOne(10000).click();
+            desc(password[i]).findOne(5000).click();
         }
         sleep(1000);
 
@@ -54,7 +63,7 @@ deviceUnlocker.unlockDevice = function () {
                     if (currentActivity() != "com.android.launcher.Launcher") {
                         log("returning home");
                         home();
-                        sleep(200);
+                        sleep(500);
                     }
                 }
 
@@ -67,7 +76,26 @@ deviceUnlocker.unlockDevice = function () {
                 }
             }
 
+            case "HUAWEI": {
+                for (let i = 0; i < 10; i++) {
+                    if (currentActivity() != "com.huawei.android.launcher.unihome.UniHomeLauncher") {
+                        log("returning home");
+                        home();
+                        sleep(500);
+                    }
+                }
+
+                if (currentActivity() == "com.huawei.android.launcher.unihome.UniHomeLauncher") {
+                    toastLog("device unlocked");
+                    return true;
+                } else {
+                    console.error("unlock device failed");
+                    return false;
+                }
+            }
+
             default:
+                home();
                 return true;
         }
     }
