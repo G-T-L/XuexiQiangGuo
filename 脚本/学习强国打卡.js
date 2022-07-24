@@ -222,17 +222,7 @@ function checkScore() {
         var currentScore = text("积分").findOne(3000).parent().child(1).text();
         var averageScore = (currentScore - initialScore) / 7;
         if (averageScore < targetAverageScore) {
-            weChatPush(
-                "title",
-                "学习强国积分未达标",
-                "content",
-                "本周平均每日积分为：" +
-                    averageScore +
-                    "\n今日需获得" +
-                    targetAverageScore * 7 -
-                    initialScore +
-                    "积分方可达标"
-            );
+            weChatPush("title", "学习强国积分未达标", "content", "本周平均每日积分为：" + averageScore + "\n今日需获得" + targetAverageScore * 7 - initialScore + "积分方可达标");
         } else {
             log("本周平均积分已达标");
         }
@@ -342,13 +332,7 @@ function readArticles(numOfArticlesToRead) {
             if (!debugMode) {
                 for (var i = 0; i < 7; i++) {
                     sleep(8000 + Math.random() * 4000);
-                    swipe(
-                        device.width / 2,
-                        device.height * (0.7 + Math.random() * 0.2),
-                        device.width / 2,
-                        device.height * (0.2 + Math.random() * 0.2),
-                        1000
-                    );
+                    swipe(device.width / 2, device.height * (0.7 + Math.random() * 0.2), device.width / 2, device.height * (0.2 + Math.random() * 0.2), 1000);
                     toast("当前为第" + readCounts + "篇文章,约已阅读" + (i + 1) * 10 + "秒");
                 }
             }
@@ -404,14 +388,8 @@ function watchVideos(numOfVediosToWatch) {
             if (!debugMode) {
                 for (var i = 0; i < 7; i++) {
                     sleep(8000 + Math.random() * 4000);
-                    swipe(
-                        device.width / 2,
-                        device.height * (0.7 + Math.random() * 0.2),
-                        device.width / 2,
-                        device.height * (0.2 + Math.random() * 0.2),
-                        1000
-                    );
-                    toast("当前为第" + readCounts + "篇文章,约已阅读" + (i + 1) * 10 + "秒");
+                    swipe(device.width / 2, device.height * (0.7 + Math.random() * 0.2), device.width / 2, device.height * (0.2 + Math.random() * 0.2), 1000);
+                    toast("当前为第" + watchCounts + "个视频,约已观看" + (i + 1) * 10 + "秒");
                 }
             }
             backToHomePage();
@@ -430,10 +408,7 @@ function dailyQuiz() {
     if (!isMainPage()) {
         enterMainPage();
     }
-    click(
-        text("积分").findOne(3000).parent().bounds().centerX(),
-        text("积分").findOne(3000).parent().bounds().centerY()
-    );
+    click(text("积分").findOne(3000).parent().bounds().centerX(), text("积分").findOne(3000).parent().bounds().centerY());
     sleep(3000);
     if (text("成长总积分").findOne(3000)) {
         text("每日答题").findOne(1000).parent().parent().child(3).click();
@@ -493,10 +468,7 @@ function watchLocalChannel() {
     if (!isMainPage()) {
         enterMainPage();
     }
-    click(
-        text("积分").findOne(3000).parent().bounds().centerX(),
-        text("积分").findOne(3000).parent().bounds().centerY()
-    );
+    click(text("积分").findOne(3000).parent().bounds().centerX(), text("积分").findOne(3000).parent().bounds().centerY());
     sleep(3000);
     if (text("成长总积分").findOne(3000)) {
         text("本地频道").findOne(1000).parent().parent().child(3).click();
@@ -622,9 +594,7 @@ function weChatPush() {
         picture = http.get(imgurl).body.bytes(); //https://acg.yanwz.cn/menhera/api.php
         files.writeBytes("./wxImg_uploadTemp.jpg", picture);
         upload_url = "https://qyapi.weixin.qq.com/cgi-bin/media/upload?access_token=" + access_token + "&type=image";
-        let upload_response_json = http
-            .postMultipart(upload_url, { picture: open("./wxImg_uploadTemp.jpg") })
-            .body.json();
+        let upload_response_json = http.postMultipart(upload_url, { picture: open("./wxImg_uploadTemp.jpg") }).body.json();
         if (upload_response_json["errcode"] != 0) {
             console.error("errcode: " + upload_response_json["errcode"]);
             console.error("errmsg: " + upload_response_json["errmsg"]);
