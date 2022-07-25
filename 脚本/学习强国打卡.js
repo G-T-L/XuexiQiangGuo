@@ -450,9 +450,11 @@ function dailyQuiz() {
 
         toastLog("当前已蒙对" + correctCounts + "题/5题");
 
-        if (textContains("访问异常").findOne(1000)) {
-            swipe(device.width * 0.2, device.height / 2, device.width * 0.9, device.height / 2, 1000);
-            sleep(1000);
+        for (let i = 0; i < 5; i++) {
+            if (textContains("访问异常").findOne(1000)) {
+                swipe(device.width * 0.2, device.height / 2, device.width * 0.9, device.height / 2, i * 300);
+                sleep(1000);
+            }
         }
         if (correctCounts >= 5) {
             if (text("返回").findOne(1000)) {
