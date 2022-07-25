@@ -433,12 +433,12 @@ function dailyQuiz() {
             smartClick(text("D.").findOne(100));
             sleep(100);
         }
-        sleep(3000);
+        sleep(1000);
         smartClick(text("确定").findOne(1000));
         sleep(1000);
 
-        if (text("下一题").findOne(3000)) {
-            smartClick(text("下一题").findOne(3000));
+        if (text("下一题").findOne(1000)) {
+            smartClick(text("下一题").findOne(1000));
             sleep(1000);
         } else {
             if (text("完成").findOne(3000)) {
