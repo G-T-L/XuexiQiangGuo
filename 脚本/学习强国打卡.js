@@ -454,6 +454,8 @@ function dailyQuiz() {
             if (textContains("访问异常").findOne(1000)) {
                 swipe(device.width * 0.2, device.height / 2, device.width * 0.9, device.height / 2, i * 300);
                 sleep(1000);
+            } else {
+                break;
             }
         }
         if (correctCounts >= 5) {
