@@ -59,7 +59,6 @@ function initialize() {
             })
             .on("dismiss", (dialog) => {
                 if (choiceMade == "positive") {
-                    toastLog("当前为快速模式");
                     thread_main = threads.start(main);
                     thread_main_monitor = threads.start(main_monitor);
                 } else if (choiceMade == "negative") {
@@ -406,15 +405,16 @@ function watchVideos(numOfVediosToWatch) {
 }
 
 function dailyQuiz() {
+    backToHomePage();
     if (!isMainPage()) {
         enterMainPage();
     }
+    toastLog("daily quiz begin");
     click(text("积分").findOne(3000).parent().bounds().centerX(), text("积分").findOne(3000).parent().bounds().centerY());
     sleep(3000);
     if (text("成长总积分").findOne(3000)) {
         text("每日答题").findOne(1000).parent().parent().child(3).click();
     }
-    toastLog("daily quiz begin");
 
     let correctCounts = 0;
     let loopCounts = 0;
@@ -426,6 +426,12 @@ function dailyQuiz() {
         } else {
             smartClick(text("A.").findOne(3000));
             sleep(1000);
+            smartClick(text("B.").findOne(100));
+            sleep(100);
+            smartClick(text("C.").findOne(100));
+            sleep(100);
+            smartClick(text("D.").findOne(100));
+            sleep(100);
         }
         sleep(3000);
         smartClick(text("确定").findOne(1000));
