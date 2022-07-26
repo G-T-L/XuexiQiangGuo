@@ -116,16 +116,19 @@ function main() {
     sleep(1000);
     logScore();
     if (debugMode) {
+        dailyQuiz();
         readArticles(6);
         watchVideos(6);
     } else {
         readArticles(10); //有概率点到视频啥的就不作数了
         watchVideos(8);
     }
+
+    watchLocalChannel();
+
     if (storage_xxqg.get("isDailyQuizEnabled") || false) {
         dailyQuiz();
     }
-    watchLocalChannel();
 
     checkScore();
     sleep(1000);
@@ -255,10 +258,14 @@ function readArticles(numOfArticlesToRead) {
     if (!isMainPage()) {
         enterMainPage();
     }
-    smartClick(desc("工作").findOne(3000));
-    sleep(1000);
-    smartClick(desc("工作").findOne(3000));
-    sleep(1000);
+    if (desc("工作").findOne(3000)) {
+        smartClick(desc("工作").findOne(3000));
+        sleep(1000);
+        smartClick(desc("工作").findOne(3000));
+        sleep(1000);
+    } else {
+        click(device.width / 2, device.height - 100);
+    }
 
     let p = boundsInside(1, device.height * 0.1, device.width * 0.9, device.height * 0.9)
         .text("推荐")
@@ -451,9 +458,10 @@ function dailyQuiz() {
         toastLog("当前已蒙对" + correctCounts + "题/5题");
 
         for (let i = 0; i < 5; i++) {
-            if (textContains("访问异常").findOne(1000)) {
+            if (textContains("访问异常").findOne(100)) {
+                toastLog("进行访问异常验证");
                 swipe(device.width * 0.2, device.height / 2, device.width * 0.9, device.height / 2, i * 300);
-                sleep(1000);
+                sleep(2000);
             } else {
                 break;
             }
