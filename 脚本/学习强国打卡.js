@@ -452,8 +452,9 @@ function dailyQuiz() {
             if (text("完成").findOne(100)) {
                 smartClick(text("完成").findOne(100));
                 sleep(1000);
+            } else {
+                correctCounts++; //没提示下一题说明做对了
             }
-            correctCounts++; //没提示下一题说明做对了
         }
 
         toastLog("当前已蒙对" + correctCounts + "题/5题");
