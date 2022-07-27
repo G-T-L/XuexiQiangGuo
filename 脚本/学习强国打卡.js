@@ -366,7 +366,7 @@ function watchVideos(numOfVediosToWatch) {
     sleep(3000);
 
     let dateStr;
-    if (new Date().getHours() > 16) {
+    if (new Date().getHours() > 21) {
         dateStr = getDay("Today");
     } else {
         dateStr = getDay("Yesterday");
@@ -416,22 +416,24 @@ function dailyQuiz() {
     if (!isMainPage()) {
         enterMainPage();
     }
-    toastLog("daily quiz begin");
+    toastLog("daily quiz entering");
     click(text("积分").findOne(3000).parent().bounds().centerX(), text("积分").findOne(3000).parent().bounds().centerY());
     sleep(3000);
     if (text("成长总积分").findOne(3000)) {
         text("每日答题").findOne(1000).parent().parent().child(3).click();
     }
+    toastLog("daily quiz begin");
 
     let correctCounts = 0;
     let loopCounts = 0;
 
     for (; loopCounts < 100; loopCounts++) {
         sleep(1000);
-        if (className("android.widget.EditText").findOne(1000)) {
-            className("android.widget.EditText").findOne(1000).setText("阿巴阿巴");
+        if (className("android.widget.EditText").findOne(100)) {
+            className("android.widget.EditText").findOne(100).setText("阿巴阿巴");
+            sleep(100);
         } else {
-            smartClick(text("A.").findOne(3000));
+            smartClick(text("A.").findOne(100));
             sleep(1000);
             smartClick(text("B.").findOne(100));
             sleep(100);
@@ -440,16 +442,15 @@ function dailyQuiz() {
             smartClick(text("D.").findOne(100));
             sleep(100);
         }
-        sleep(1000);
         smartClick(text("确定").findOne(1000));
         sleep(1000);
 
-        if (text("下一题").findOne(1000)) {
-            smartClick(text("下一题").findOne(1000));
+        if (text("下一题").findOne(100)) {
+            smartClick(text("下一题").findOne(100));
             sleep(1000);
         } else {
-            if (text("完成").findOne(3000)) {
-                smartClick(text("完成").findOne(3000));
+            if (text("完成").findOne(100)) {
+                smartClick(text("完成").findOne(100));
                 sleep(1000);
             }
             correctCounts++; //没提示下一题说明做对了
@@ -460,7 +461,7 @@ function dailyQuiz() {
         for (let i = 0; i < 5; i++) {
             if (textContains("访问异常").findOne(100)) {
                 toastLog("进行访问异常验证");
-                swipe(device.width * 0.2, device.height / 2, device.width * 0.9, device.height / 2, i * 300);
+                swipe(device.width * 0.2, device.height / 2, device.width * 0.9, device.height / 2, (i + 1) * 300);
                 sleep(2000);
             } else {
                 break;
@@ -480,6 +481,7 @@ function dailyQuiz() {
     if (loopCounts == 100) {
         console.error("每日答题已超时");
     }
+    toastLog("daily quiz finished");
     backToHomePage();
 }
 
