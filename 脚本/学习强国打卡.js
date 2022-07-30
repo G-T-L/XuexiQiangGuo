@@ -96,6 +96,10 @@ function initialize() {
                 alert("错误", "解锁屏幕失败");
             });
             log("解锁屏幕失败,脚本已结束");
+
+            getScreenCaptureAuthority();
+            files.create("./日志/");
+            images.save(captureScreen(), "/日志/" + getDateStr("Today") + "_解锁屏幕失败.jpg", "jpg", 50);
             exit();
         }
     }
@@ -120,7 +124,7 @@ function main() {
         readArticles(6);
         watchVideos(6);
     } else {
-        readArticles(10); //有概率点到视频啥的就不作数了
+        readArticles(8); //有概率点到视频啥的就不作数了
         watchVideos(8);
     }
 
@@ -159,6 +163,10 @@ function main_monitor() {
         threads.start(function () {
             alert("错误", "学习强国打卡超时");
         });
+        getScreenCaptureAuthority();
+        files.create("./日志/");
+        images.save(captureScreen(), "/日志/" + getDateStr("Today") + "_超时.jpg", "jpg", 50);
+        exit();
     } else {
         log("thread_main_monitor terminated");
     }
@@ -185,7 +193,7 @@ function enterMainPage() {
     launchApp("学习强国");
     sleep(1000);
     //toast("等待学习强国启动");
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
         if (!isMainPage()) {
             sleep(1000);
         } else {
@@ -202,6 +210,9 @@ function enterMainPage() {
         threads.start(function () {
             alert("错误", "主界面加载失败,脚本未执行");
         });
+        getScreenCaptureAuthority();
+        files.create("./日志/");
+        images.save(captureScreen(), "/日志/" + getDateStr("Today") + "_主界面加载失败.jpg", "jpg", 50);
         exit();
     }
 }
@@ -209,7 +220,7 @@ function enterMainPage() {
 function logScore() {
     //周一则记录初始分数
     backToHomePage();
-    if (new Date().getDay() == 1) {
+    if (new Date().getDateStr() == 1) {
         if (storage_xxqg.get("lastRecordDate") != new Date().getDate()) {
             storage_xxqg.put("lastRecordDate", new Date().getDate());
             let currentScore = text("积分").findOne(3000).parent().child(1).text();
@@ -221,7 +232,7 @@ function logScore() {
 function checkScore() {
     //周日则检查平均积分
     backToHomePage();
-    if (new Date().getDay() == 0) {
+    if (new Date().getDateStr() == 0) {
         initialScore = storage_xxqg.get("initialScore") || 0;
         let currentScore = text("积分").findOne(3000).parent().child(1).text();
         let averageScore = (currentScore - initialScore) / 7;
@@ -234,7 +245,7 @@ function checkScore() {
 }
 
 // 得到当日日期字符串用于定位文章，格式YYYY-MM-DD，默认当天，可加“Yesterday”指定昨天
-function getDay(strDay) {
+function getDateStr(strDay) {
     let t = 0;
     if (strDay == "Yesterday") {
         t = 24 * 60 * 60 * 1000;
@@ -275,9 +286,9 @@ function readArticles(numOfArticlesToRead) {
 
     let dateStr;
     if (new Date().getHours() > 8) {
-        dateStr = getDay("Today");
+        dateStr = getDateStr("Today");
     } else {
-        dateStr = getDay("Yesterday");
+        dateStr = getDateStr("Yesterday");
     }
 
     let readCounts = 0;
@@ -367,9 +378,9 @@ function watchVideos(numOfVediosToWatch) {
 
     let dateStr;
     if (new Date().getHours() > 21) {
-        dateStr = getDay("Today");
+        dateStr = getDateStr("Today");
     } else {
-        dateStr = getDay("Yesterday");
+        dateStr = getDateStr("Yesterday");
     }
 
     let watchCounts = 0;
@@ -388,12 +399,12 @@ function watchVideos(numOfVediosToWatch) {
             }
             smartClick(text("继续播放").findOne(1000));
             sleep(1000);
-            click(device.width / 2, 300);
+            click(device.width / 2, 300 * (device.width / 1080));
             sleep(1000);
             toastLog("开始看第" + watchCounts + "个视频/共" + numOfVediosToWatch + "个");
             //非测试模式则获取浏览时长分
             if (!debugMode) {
-                for (let i = 0; i < 4; i++) {
+                for (let i = 0; i < 6; i++) {
                     sleep(8000 + Math.random() * 4000);
                     swipe(device.width / 2, device.height * (0.7 + Math.random() * 0.2), device.width / 2, device.height * (0.2 + Math.random() * 0.2), 1000);
                     toast("当前为第" + watchCounts + "个视频,约已观看" + (i + 1) * 10 + "秒");
@@ -533,6 +544,22 @@ function smartClick(widget) {
         }
         return false;
     }
+}
+
+function getScreenCaptureAuthority() {
+    threads.start(function () {
+        let i = 0;
+        for (; i < 10; i++) {
+            if (smartClick(textContains("立即开始").findOne(1000)) || smartClick(textContains("允许").findOne(1000))) {
+                break;
+            }
+        }
+        if (i == 10) {
+            click(device.width - 300, device.height - 200);
+        }
+    });
+    sleep(500);
+    requestScreenCapture();
 }
 
 //let msgid = weChatPush("wecom_secret", wecom_secret, "wecom_aid", wecom_aid, "wecom_cid", wecom_cid, "wecom_touid", wecom_touid, "content", content, "msgtype", msgtype, "imgurl", imgurl);

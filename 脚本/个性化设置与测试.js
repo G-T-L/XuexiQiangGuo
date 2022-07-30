@@ -27,14 +27,17 @@ ui.layout(
                     <input id="serverChanSendKey_input" h="50" size="14sp" hint="server酱的推送通道，已弃用" />
                 </vertical>
             </linear>
-            <button id="screenUnlockTest" text="解锁屏幕测试(点击后请手动关闭屏幕)" h="40" margin="5 5" />
+            <vertical w="*">
+                <button id="screenUnlockTest" text="解锁屏幕测试(点击后请手动关闭屏幕)" h="40" margin="5 0" />
+                <button id="screenCaptureTest" text="截屏权限自动申请测试" h="40" margin="5 0" />
+            </vertical>
             <linear>
-                <button id="weChatPushTestButton" text="微信推送测试" h="40" margin="5 5" />
+                <button id="weChatPushTestButton" text="微信推送测试" h="40" margin="5 0" />
                 <spinner entries="text|image|news|mpnews|markdown" id="weChatPushTestType" w="*" h="40" />
             </linear>
             <linear gravity="center">
-                <button id="resetStorage" text="重置" margin="10 5" />
-                <button id="closeUI" text="退出" margin="10 5" />
+                <button id="resetStorage" text="重置" margin="10 0" />
+                <button id="closeUI" text="退出" margin="10 0" />
             </linear>
         </vertical>
     </frame>
@@ -151,6 +154,21 @@ ui.screenUnlockTest.on("click", () => {
             } else {
                 alert('未找到脚本"解锁屏幕.js"');
             }
+        }
+    });
+});
+
+ui.screenCaptureTest.on("click", () => {
+    threads.start(function () {
+        getScreenCaptureAuthority();
+        sleep(100);
+        files.create("./日志/");
+        images.save(captureScreen(), "./日志/截图测试.jpg", "jpg", 50);
+        sleep(2000);
+        if (images.read("./日志/截图测试.jpg")) {
+            toastLog("成功截图并保存于脚本根目录，请检查");
+        } else {
+            toastLog("截图保存失败，请检查权限或联系开发者");
         }
     });
 });
@@ -331,4 +349,48 @@ function weChatPush() {
             return;
         }
     }
+}
+
+function smartClick(widget) {
+    if (widget) {
+        if (widget.clickable()) {
+            widget.click();
+            return true;
+        } else {
+            let widget_temp = widget.parent();
+            for (let triedTimes = 0; triedTimes < 5; triedTimes++) {
+                if (widget_temp.clickable()) {
+                    widget_temp.click();
+                    return true;
+                }
+                widget_temp = widget_temp.parent();
+                if (!widget_temp) {
+                    break;
+                }
+            }
+
+            click(widget.bounds().centerX(), widget.bounds().centerY());
+            return true;
+        }
+    } else {
+        // console.verbose('invalid widget')
+        console.trace("invalid widget : ");
+        return false;
+    }
+}
+
+function getScreenCaptureAuthority() {
+    threads.start(function () {
+        let i = 0;
+        for (; i < 5; i++) {
+            if (smartClick(textContains("立即开始").findOne(1000)) || smartClick(textContains("允许").findOne(1000))) {
+                break;
+            }
+        }
+        if (i == 10) {
+            click(device.width - 300, device.height - 200);
+        }
+    });
+    sleep(500);
+    requestScreenCapture();
 }
