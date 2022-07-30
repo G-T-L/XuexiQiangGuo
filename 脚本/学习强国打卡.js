@@ -220,7 +220,7 @@ function enterMainPage() {
 function logScore() {
     //周一则记录初始分数
     backToHomePage();
-    if (new Date().getDateStr() == 1) {
+    if (new Date().getDay() == 1) {
         if (storage_xxqg.get("lastRecordDate") != new Date().getDate()) {
             storage_xxqg.put("lastRecordDate", new Date().getDate());
             let currentScore = text("积分").findOne(3000).parent().child(1).text();
@@ -232,7 +232,7 @@ function logScore() {
 function checkScore() {
     //周日则检查平均积分
     backToHomePage();
-    if (new Date().getDateStr() == 0) {
+    if (new Date().getDay() == 0) {
         initialScore = storage_xxqg.get("initialScore") || 0;
         let currentScore = text("积分").findOne(3000).parent().child(1).text();
         let averageScore = (currentScore - initialScore) / 7;
