@@ -346,7 +346,7 @@ function readArticles(numOfArticlesToRead) {
             }
             //非测试模式则获取浏览时长分
             if (!debugMode) {
-                for (let i = 0; i < 7; i++) {
+                for (let i = 0; i < 8; i++) {
                     sleep(8000 + Math.random() * 4000);
                     swipe(device.width / 2, device.height * (0.7 + Math.random() * 0.2), device.width / 2, device.height * (0.2 + Math.random() * 0.2), 1000);
                     toast("当前为第" + readCounts + "篇文章,约已阅读" + (i + 1) * 10 + "秒");
