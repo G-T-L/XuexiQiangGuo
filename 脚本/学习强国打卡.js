@@ -173,8 +173,12 @@ function main_monitor() {
 }
 
 function isMainPage() {
-    //return packageName('cn.xuexi.android').id('comm_head_title').exists()
-    return text("我的").exists();
+    if (text("我的").exists()) {
+        if (text("我的").findOne(100).bounds().centerX() > device.width * 0.7) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function backToHomePage() {
@@ -182,6 +186,9 @@ function backToHomePage() {
         if (!isMainPage()) {
             back();
             sleep(2000);
+            if (textContains("加入书架").exists()) {
+                smartClick(text("取消").findOne(1000));
+            }
         } else {
             break;
         }
@@ -548,14 +555,10 @@ function smartClick(widget) {
 
 function getScreenCaptureAuthority() {
     threads.start(function () {
-        let i = 0;
-        for (; i < 10; i++) {
-            if (smartClick(textContains("立即开始").findOne(1000)) || smartClick(textContains("允许").findOne(1000))) {
+        for (let i = 0; i < 10; i++) {
+            if (smartClick(text("立即开始").findOne(1000)) || smartClick(text("允许").findOne(1000))) {
                 break;
             }
-        }
-        if (i == 10) {
-            click(device.width - 300, device.height - 200);
         }
     });
     sleep(500);

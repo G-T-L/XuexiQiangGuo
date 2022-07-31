@@ -381,14 +381,10 @@ function smartClick(widget) {
 
 function getScreenCaptureAuthority() {
     threads.start(function () {
-        let i = 0;
-        for (; i < 5; i++) {
-            if (smartClick(textContains("立即开始").findOne(1000)) || smartClick(textContains("允许").findOne(1000))) {
+        for (let i = 0; i < 5; i++) {
+            if (smartClick(text("立即开始").findOne(1000)) || smartClick(text("允许").findOne(1000))) {
                 break;
             }
-        }
-        if (i == 10) {
-            click(device.width - 300, device.height - 200);
         }
     });
     sleep(500);
