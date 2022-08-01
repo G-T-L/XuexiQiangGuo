@@ -98,6 +98,7 @@ function initialize() {
             log("解锁屏幕失败,脚本已结束");
 
             getScreenCaptureAuthority();
+            sleep(1000);
             files.create("./日志/");
             images.save(captureScreen(), "./日志/" + getDateStr("Today") + "_解锁屏幕失败.jpg", "jpg", 50);
             exit();
@@ -165,6 +166,7 @@ function main_monitor() {
             alert("错误", "学习强国打卡超时");
         });
         getScreenCaptureAuthority();
+        sleep(1000);
         files.create("./日志/");
         images.save(captureScreen(), "./日志/" + getDateStr("Today") + "_超时.jpg", "jpg", 50);
         exit();
@@ -224,9 +226,12 @@ function enterMainPage() {
             alert("错误", "主界面加载失败,脚本未执行");
         });
         getScreenCaptureAuthority();
+        sleep(1000);
         files.create("./日志/");
         images.save(captureScreen(), "./日志/" + getDateStr("Today") + "_主界面加载失败.jpg", "jpg", 50);
         exit();
+    } else {
+        toastLog("主界面加载完毕");
     }
 }
 
