@@ -99,7 +99,7 @@ function initialize() {
 
             getScreenCaptureAuthority();
             files.create("./日志/");
-            images.save(captureScreen(), "/日志/" + getDateStr("Today") + "_解锁屏幕失败.jpg", "jpg", 50);
+            images.save(captureScreen(), "./日志/" + getDateStr("Today") + "_解锁屏幕失败.jpg", "jpg", 50);
             exit();
         }
     }
@@ -166,7 +166,7 @@ function main_monitor() {
         });
         getScreenCaptureAuthority();
         files.create("./日志/");
-        images.save(captureScreen(), "/日志/" + getDateStr("Today") + "_超时.jpg", "jpg", 50);
+        images.save(captureScreen(), "./日志/" + getDateStr("Today") + "_超时.jpg", "jpg", 50);
         exit();
     } else {
         log("thread_main_monitor terminated");
@@ -189,9 +189,11 @@ function backToHomePage() {
             sleep(2000);
             if (textContains("加入书架").exists()) {
                 smartClick(text("取消").findOne(1000));
+                sleep(2000);
             }
             if (textContains("确定要退出答题").exists()) {
                 smartClick(text("退出").findOne(1000));
+                sleep(2000);
             }
         } else {
             break;
@@ -223,7 +225,7 @@ function enterMainPage() {
         });
         getScreenCaptureAuthority();
         files.create("./日志/");
-        images.save(captureScreen(), "/日志/" + getDateStr("Today") + "_主界面加载失败.jpg", "jpg", 50);
+        images.save(captureScreen(), "./日志/" + getDateStr("Today") + "_主界面加载失败.jpg", "jpg", 50);
         exit();
     }
 }
@@ -488,8 +490,9 @@ function dailyQuiz() {
         for (let i = 0; i < 5; i++) {
             if (textContains("访问异常").findOne(100)) {
                 toastLog("进行访问异常验证");
+                smartClick(text("刷新").findOne(100));
                 swipe(device.width * 0.2, device.height / 2, device.width * 0.9, device.height / 2, (i + 1) * 300);
-                sleep(2000);
+                sleep(1000);
             } else {
                 break;
             }
