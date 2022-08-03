@@ -153,6 +153,8 @@ function main() {
             KeyCode(26);
         }
     }
+    thread_main_monitor.interrupt();
+    exit();
 }
 
 function main_monitor() {
