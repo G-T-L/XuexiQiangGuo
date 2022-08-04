@@ -289,7 +289,7 @@ function readArticles(numOfArticlesToRead) {
     let isShared = true; //好像现在不需要分享了
     let isStarred = true; //好像现在不需要收藏了
     let isCommented = false; //需要评论一次
-    toastLog("article read begin");
+    toastLog("准备开始阅读文章");
     if (!isMainPage()) {
         enterMainPage();
     }
@@ -302,11 +302,29 @@ function readArticles(numOfArticlesToRead) {
         click(device.width / 2, device.height - 100);
     }
 
-    let p = boundsInside(1, device.height * 0.1, device.width * 0.9, device.height * 0.9)
+    let p = boundsInside(1, 1, device.width * 0.9, device.height * 0.9)
         .text("推荐")
         .findOne(1000);
-    smartClick(p);
+    if (p) {
+        smartClick(p);
+    } else {
+        let p2 = boundsInside(1, 1, device.width * 0.9, device.height * 0.9)
+            .text("要闻")
+            .findOne(1000);
+        smartClick(p2);
+        sleep(2000);
+        let p = boundsInside(1, 1, device.width * 0.9, device.height * 0.9)
+            .text("推荐")
+            .findOne(1000);
+        if (p) {
+            smartClick(p);
+        } else {
+            console.error("文章-推荐频道定位失败");
+        }
+    }
     sleep(1000);
+
+    toastLog("开始阅读文章");
 
     let dateStr;
     if (new Date().getHours() > 8) {
@@ -384,8 +402,10 @@ function readArticles(numOfArticlesToRead) {
             swipe(device.width / 2, device.height * 0.7, device.width / 2, device.height * 0.2, 500);
             sleep(200);
             toastLog("failed to locate number" + (readCounts + 1) + " passage after " + failedCounts + " times");
+            console.warn("新文章数量不足，可能频道选择错误，建议选择推荐频道");
         }
     }
+    toastLog("阅读文章结束，成功阅读" + readCounts + "篇文章");
 }
 
 // 观看视频
@@ -394,11 +414,13 @@ function watchVideos(numOfVediosToWatch) {
         enterMainPage();
     }
 
-    toastLog("video watch begin");
+    toastLog("准备开始观看视频");
     smartClick(text("电视台").findOne(1000));
     sleep(3000);
     smartClick(text("联播频道").findOne(1000));
     sleep(3000);
+
+    toastLog("开始观看视频");
 
     let dateStr;
     if (new Date().getHours() > 21) {
@@ -443,9 +465,10 @@ function watchVideos(numOfVediosToWatch) {
             sleep(200);
         }
     }
-    toastLog("video watch done");
+    toastLog("阅读文章结束，成功观看" + watchCounts + "个视频");
 }
 
+// 每日答题
 function dailyQuiz() {
     backToHomePage();
     if (!isMainPage()) {
@@ -522,6 +545,7 @@ function dailyQuiz() {
     backToHomePage();
 }
 
+// 本地频道
 function watchLocalChannel() {
     if (!isMainPage()) {
         enterMainPage();
