@@ -258,12 +258,12 @@ function checkScore() {
         toastLog("初始积分为：" + initialScore);
         let currentScore = text("积分").findOne(3000).parent().child(1).text();
         toastLog("当前积分为：" + currentScore);
-        let averageScore = (currentScore - initialScore) / 7;
-        toastLog("平均积分为：" + averageScore);
+        let averageScore = Math.floor((currentScore - initialScore) / 7);
+        toastLog("平均积分约为：" + averageScore);
         if (averageScore < targetAverageScore) {
-            weChatPush("title", "学习强国积分未达标", "content", "本周平均每日积分为：" + averageScore + "\n今日需获得" + (targetAverageScore - averageScore) * 7 + "积分方可达标");
+            weChatPush("title", "学习强国积分未达标", "content", "本周平均每日积分约为：" + averageScore + "\n今日需获得" + (targetAverageScore * 7 + initialScore - currentScore) + "积分方可达标");
         } else {
-            log("本周平均积分为：" + averageScore + "，已达标");
+            log("本周平均积分约为：" + averageScore + "，已达标");
         }
     }
 }
