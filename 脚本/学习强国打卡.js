@@ -322,7 +322,7 @@ function readArticles(numOfArticlesToRead) {
             console.error("文章-推荐频道定位失败");
         }
     }
-    sleep(1000);
+    sleep(3000);
 
     toastLog("开始阅读文章");
 
@@ -372,19 +372,22 @@ function readArticles(numOfArticlesToRead) {
                 isShared = true;
             }
             if (!isCommented) {
-                toast("评论中");
-                smartClick(textContains("欢迎发表你的观点").findOne(1000));
-                sleep(2000);
-                className("android.widget.EditText").findOne().setText("为祖国点赞");
-                sleep(1500);
-                smartClick(text("发布").findOne(1000));
-                sleep(2000);
-                //发完再删了
-                smartClick(text("删除").findOne(3000));
-                sleep(1000);
-                smartClick(text("确认").findOne(3000));
-                sleep(1000);
-                isCommented = true;
+                //部分界面如书架等无法评论
+                if (textContains("欢迎发表你的观点").findOne(3000)) {
+                    toast("评论中");
+                    smartClick(textContains("欢迎发表你的观点").findOne(3000));
+                    sleep(2000);
+                    className("android.widget.EditText").findOne(3000).setText("为祖国点赞");
+                    sleep(1500);
+                    smartClick(text("发布").findOne(3000));
+                    sleep(2000);
+                    //发完再删了
+                    smartClick(text("删除").findOne(3000));
+                    sleep(1000);
+                    smartClick(text("确认").findOne(3000));
+                    sleep(1000);
+                    isCommented = true;
+                }
             }
             //非测试模式则获取浏览时长分
             if (!debugMode) {
@@ -402,8 +405,10 @@ function readArticles(numOfArticlesToRead) {
             swipe(device.width / 2, device.height * 0.7, device.width / 2, device.height * 0.2, 500);
             sleep(200);
             toastLog("failed to locate number" + (readCounts + 1) + " passage after " + failedCounts + " times");
-            console.warn("新文章数量不足，可能频道选择错误，建议选择推荐频道");
         }
+    }
+    if (failedCounts >= 3) {
+        console.warn("新文章数量不足，可能频道选择错误，建议选择推荐频道");
     }
     toastLog("阅读文章结束，成功阅读" + readCounts + "篇文章");
 }
@@ -465,7 +470,7 @@ function watchVideos(numOfVediosToWatch) {
             sleep(200);
         }
     }
-    toastLog("阅读文章结束，成功观看" + watchCounts + "个视频");
+    toastLog("观看视频结束，成功观看" + watchCounts + "个视频");
 }
 
 // 每日答题
