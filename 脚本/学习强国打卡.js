@@ -126,7 +126,7 @@ function main() {
         readArticles(6);
         watchVideos(6);
     } else {
-        readArticles(8); //有概率点到视频啥的就不作数了
+        readArticles(10); //有概率点到图片、视频啥的就不作数了
         watchVideos(8);
     }
 
@@ -140,12 +140,7 @@ function main() {
     sleep(1000);
     toastLog("学习强国打卡已结束");
     home();
-    //device.cancelKeepingAwake();
-    device.setMusicVolume(initialMediaVolume);
-    if (isScreenNeedToBeDimed) {
-        device.setBrightness(initialBrightness);
-        device.setBrightnessMode(initialBrightnessMode);
-    }
+
     sleep(2000);
     if (IsRooted) {
         shell("am force-stop cn.xuexi.android", true);
@@ -156,6 +151,20 @@ function main() {
             shell("su -c 'svc data disable'", true);
         }
     }
+
+    //恢复音量与原先屏幕亮度
+    device.setMusicVolume(initialMediaVolume);
+    if (isScreenNeedToBeDimed) {
+        for (let i = 0; i < 10 * 60; i++) {
+            if (isScreenOn()) {
+                sleep(1000);
+            } else {
+                device.setBrightness(initialBrightness);
+                device.setBrightnessMode(initialBrightnessMode);
+            }
+        }
+    }
+
     thread_main_monitor.interrupt();
     exit();
 }
