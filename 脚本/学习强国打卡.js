@@ -25,7 +25,7 @@ function initialize() {
     let checkBoxCounts = 0;
 
     if (device.isScreenOn()) {
-        isScreenNeedToBeLocked = true;
+        isScreenNeedToBeLocked = false;
         isScreenNeedToBeDimed = false;
         let choiceMade;
         let dialog_start = dialogs
@@ -86,7 +86,7 @@ function initialize() {
             alert("电量低", "电量低 脚本未执行");
             exit();
         }
-        isScreenNeedToBeLocked = false;
+        isScreenNeedToBeLocked = true;
         isScreenNeedToBeDimed = true;
         if (deviceUnlocker.unlockDevice()) {
             thread_main = threads.start(main);
@@ -261,7 +261,12 @@ function checkScore() {
         let averageScore = Math.floor((currentScore - initialScore) / 7);
         toastLog("平均积分约为：" + averageScore);
         if (averageScore < targetAverageScore) {
-            weChatPush("title", "学习强国积分未达标", "content", "本周平均每日积分约为：" + averageScore + "\n今日需获得" + (targetAverageScore * 7 + initialScore - currentScore) + "积分方可达标");
+            weChatPush(
+                "title",
+                "学习强国积分未达标",
+                "content",
+                "本周初始积分为：" + initialScore + "\n本周平均每日积分约为：" + averageScore + "\n今日需获得" + (targetAverageScore * 7 + initialScore - currentScore) + "积分方可达标"
+            );
         } else {
             log("本周平均积分约为：" + averageScore + "，已达标");
         }
@@ -489,7 +494,7 @@ function dailyQuiz() {
 
     let correctCounts = 0;
     let loopCounts = 0;
-
+    let correctTargetNum = 6; //多做一题防计数有误
     for (; loopCounts < 100; loopCounts++) {
         sleep(1000);
         if (className("android.widget.EditText").findOne(100)) {
@@ -520,9 +525,9 @@ function dailyQuiz() {
             }
         }
 
-        toastLog("当前已蒙对" + correctCounts + "题/5题");
+        toastLog("当前已蒙对" + correctCounts + "题/" + correctTargetNum + "题");
 
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < correctTargetNum; i++) {
             if (textContains("访问异常").findOne(100)) {
                 toastLog("进行访问异常验证");
                 smartClick(text("刷新").findOne(100));
@@ -532,7 +537,7 @@ function dailyQuiz() {
                 break;
             }
         }
-        if (correctCounts >= 5) {
+        if (correctCounts >= correctTargetNum) {
             if (text("返回").findOne(1000)) {
                 smartClick(text("返回").findOne(1000));
                 sleep(1000);

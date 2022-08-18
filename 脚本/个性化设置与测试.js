@@ -36,6 +36,7 @@ ui.layout(
                 <spinner entries="text|image|news|mpnews|markdown" id="weChatPushTestType" w="*" h="40" />
             </linear>
             <linear gravity="center">
+                <button id="rootIndicator" text="root状态" margin="10 0" />
                 <button id="resetStorage" text="重置" margin="10 0" />
                 <button id="closeUI" text="退出" margin="10 0" />
             </linear>
@@ -51,6 +52,7 @@ threads.start(function () {
     ui.finish();
 });
 
+const IsRooted = files.exists("/sbin/su") || files.exists("/system/xbin/su") || files.exists("/system/bin/su"); //检测Root权限
 var storage_privateinfo = storages.create("privateInformation");
 var red = colors.rgb(255, 0, 0);
 var green = colors.rgb(0, 255, 0);
@@ -173,6 +175,16 @@ ui.screenCaptureTest.on("click", () => {
     });
 });
 
+ui.rootIndicator.on("click", () => {
+    threads.start(function () {
+        if (IsRooted) {
+            toast("设备已root");
+        } else {
+            toast("设备未root");
+        }
+    });
+});
+
 ui.resetStorage.on("click", () => {
     threads.start(function () {
         if (confirm("请确认重置配置文件")) {
@@ -201,7 +213,11 @@ function initial() {
     ui.serverChanSendKey_input.setText(storage_privateinfo.get("serverChanSendKey") || "");
     ui.wecom_touid_input.hint = "联系开发者获取，如“gtl”";
     ui.serverChanSendKey_input.hint = "server酱的推送通道，已弃用";
-
+    if (IsRooted) {
+        ui.rootIndicator.setBackgroundColor(green);
+    } else {
+        ui.rootIndicator.setBackgroundColor(red);
+    }
     for (let index = 0; index < idTable.length; index++) {
         if (storage_privateinfo.get(idTable[index])) {
             uiObjectTable[index].setBackgroundColor(green);
