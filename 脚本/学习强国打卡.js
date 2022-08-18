@@ -548,7 +548,10 @@ function dailyQuiz() {
         for (let i = 0; i < correctTargetNum; i++) {
             if (textContains("访问异常").findOne(100)) {
                 toastLog("进行访问异常验证");
-                smartClick(text("刷新").findOne(100));
+                if (text("刷新").findOne(100)) {
+                    smartClick(text("刷新").findOne(100));
+                    sleep(1000);
+                }
                 swipe(device.width * 0.2, device.height / 2, device.width * 0.9, device.height / 2, (i + 1) * 300);
                 sleep(1000);
             } else {
