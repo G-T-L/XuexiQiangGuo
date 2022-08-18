@@ -12,6 +12,7 @@ let debugMode = false;
 let deviceUnlocker = require("解锁屏幕.js"); //需要另一个解锁屏幕的脚本
 let isScreenNeedToBeLocked; //有root权限时会根据情况自动锁屏
 let isScreenNeedToBeDimed; //是否需要调整亮度
+let isCelluarDataNeedToTurnOnAndOff; //是否需要临时启用数据网络并在完成后关闭
 let thread_main; //主线程
 let thread_main_monitor; //防主线程卡死超时
 let storage_xxqg = storages.create("XXQG"); // 本地存储数据库 存储本周初始积分
@@ -115,6 +116,7 @@ function main() {
         device.setBrightness(0);
     }
 
+    ensureNetworkConnection();
     enterMainPage();
     sleep(1000);
     logScore();
@@ -149,6 +151,9 @@ function main() {
         shell("am force-stop cn.xuexi.android", true);
         if (isScreenNeedToBeLocked) {
             KeyCode(26);
+        }
+        if (isCelluarDataNeedToTurnOnAndOff) {
+            shell("su -c 'svc data disable'", true);
         }
     }
     thread_main_monitor.interrupt();
@@ -495,6 +500,7 @@ function dailyQuiz() {
     click(text("积分").findOne(3000).parent().bounds().centerX(), text("积分").findOne(3000).parent().bounds().centerY());
     sleep(3000);
     if (text("成长总积分").findOne(3000)) {
+        sleep(3000);
         text("每日答题").findOne(3000).parent().parent().child(3).click();
     }
     toastLog("daily quiz begin");
@@ -585,6 +591,24 @@ function watchLocalChannel() {
         sleep(3000);
     }
     backToHomePage();
+}
+
+function ensureNetworkConnection() {
+    isCelluarDataNeedToTurnOnAndOff = false;
+    try {
+        var r = http.get("www.baidu.com");
+    } catch (e) {
+        isCelluarDataNeedToTurnOnAndOff = true;
+    }
+    if (isCelluarDataNeedToTurnOnAndOff) {
+        if (IsRooted) {
+            new Shell().exec("su -c 'svc data enable'");
+            toastLog("移动数据已开启");
+            sleep(3000);
+        } else {
+            console.error("需要root权限以自动开启数据流量");
+        }
+    }
 }
 
 function smartClick(widget) {
