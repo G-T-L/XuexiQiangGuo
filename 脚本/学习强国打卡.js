@@ -9,7 +9,6 @@ auto(); //检查无障碍权限
 requiresApi(24); //安卓7以上版本
 
 let debugMode = false;
-let targetAverageScore = 35; //目标周平均分，未达标则触发提醒
 let deviceUnlocker = require("解锁屏幕.js"); //需要另一个解锁屏幕的脚本
 let isScreenNeedToBeLocked; //有root权限时会根据情况自动锁屏
 let isScreenNeedToBeDimed; //是否需要调整亮度
@@ -34,7 +33,7 @@ function initialize() {
                 content: "按音量上键取消执行、按空白处延时执行",
                 positive: "确认",
                 negative: "说明",
-                neutral: "取消",
+                neutral: "设置",
                 checkBoxPrompt: "测试模式",
                 checkBoxChecked: false,
             })
@@ -66,11 +65,10 @@ function initialize() {
                     sleep(1000);
                     initialize();
                 } else if (choiceMade == "neutral") {
-                    toastLog("脚本已终止");
-                    exit();
-                    //let delayTime = dialogs.input("延时时间(min):", "10");
-                    //sleep(delayTime * 60 * 1000);
-                    //initialize();
+                    targetAverageScore = Number(storage_xxqg.get("targetAverageScore") || 35);
+                    toastLog("当前日均积分目标为：" + targetAverageScore);
+                    avgScore = dialogs.input("设置目标每日积分，脚本将在每周日检查当周平均积分，不足则提醒，脚本预期每日可获得32分", 35);
+                    storage_xxqg.put("targetAverageScore", avgScore);
                 } else {
                     toastLog("脚本将在半小时后运行");
                     sleep(30 * 60 * 1000);
@@ -241,7 +239,7 @@ function logScore() {
     //周一则记录初始分数
     backToHomePage();
     if (new Date().getDay() == 1) {
-        if (storage_xxqg.get("lastRecordDate") != new Date().getDate()) {
+        if (Number(storage_xxqg.get("lastRecordDate")) != new Date().getDate()) {
             storage_xxqg.put("lastRecordDate", new Date().getDate());
             let currentScore = text("积分").findOne(3000).parent().child(1).text();
             storage_xxqg.put("initialScore", currentScore);
@@ -254,7 +252,8 @@ function checkScore() {
     toastLog("checking score");
     backToHomePage();
     if (new Date().getDay() == 0) {
-        initialScore = storage_xxqg.get("initialScore") || 0;
+        initialScore = Number(storage_xxqg.get("initialScore") || 0);
+        targetAverageScore = Number(storage_xxqg.get("targetAverageScore") || 35);
         toastLog("初始积分为：" + initialScore);
         let currentScore = text("积分").findOne(3000).parent().child(1).text();
         toastLog("当前积分为：" + currentScore);
@@ -265,7 +264,15 @@ function checkScore() {
                 "title",
                 "学习强国积分未达标",
                 "content",
-                "本周初始积分为：" + initialScore + "\n本周平均每日积分约为：" + averageScore + "\n今日需获得" + (targetAverageScore * 7 + initialScore - currentScore) + "积分方可达标"
+                "本周初始积分为：" +
+                    initialScore +
+                    "\n本周平均每日积分约为：" +
+                    averageScore +
+                    "\n目标为：" +
+                    targetAverageScore +
+                    "\n今日需获得" +
+                    (targetAverageScore * 7 + initialScore - currentScore) +
+                    "积分方可达标"
             );
         } else {
             log("本周平均积分约为：" + averageScore + "，已达标");
@@ -488,7 +495,7 @@ function dailyQuiz() {
     click(text("积分").findOne(3000).parent().bounds().centerX(), text("积分").findOne(3000).parent().bounds().centerY());
     sleep(3000);
     if (text("成长总积分").findOne(3000)) {
-        text("每日答题").findOne(1000).parent().parent().child(3).click();
+        text("每日答题").findOne(3000).parent().parent().child(3).click();
     }
     toastLog("daily quiz begin");
 
@@ -526,6 +533,11 @@ function dailyQuiz() {
         }
 
         toastLog("当前已蒙对" + correctCounts + "题/" + correctTargetNum + "题");
+        if (correctCounts > 10) {
+            toastLog("答题可能出错，强制退出");
+            backToHomePage();
+            break;
+        }
 
         for (let i = 0; i < correctTargetNum; i++) {
             if (textContains("访问异常").findOne(100)) {
