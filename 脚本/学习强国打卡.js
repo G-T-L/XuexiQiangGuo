@@ -156,7 +156,7 @@ function main() {
     device.setMusicVolume(initialMediaVolume);
     if (isScreenNeedToBeDimed) {
         for (let i = 0; i < 10 * 60; i++) {
-            if (isScreenOn()) {
+            if (device.isScreenOn()) {
                 sleep(1000);
             } else {
                 device.setBrightness(initialBrightness);
